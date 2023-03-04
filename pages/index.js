@@ -19,14 +19,31 @@ export default function Home() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     mode: 'onChange',
     resolver: yupResolver(formSchema),
   });
 
-  const onSubmit = (data) => {
-    console.log(JSON.stringify(data), "submitted")
+  const onSubmit = async (data) => {
+    try {
+      const response = await fetch(
+        '/.netlify/functions/formHandler',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            query: data,
+          }),
+        }
+      );
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setValue('date', '');
+      setValue('vendorName', '');
+      setValue('file', '');
+    }
   }
 
   return (
