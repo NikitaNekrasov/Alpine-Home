@@ -55,21 +55,25 @@ export default function Home() {
 
   async function isValidCsv(file, createError, path) {
     return new Promise(async (resolve, reject) => {
-      CSVFileValidator(file, csvSchema)
-        .then(csvData => {
-          let errors = ''
-          csvData.inValidData.forEach(item => {
-            errors += (item.message + '\n')
+      if(file) {
+        CSVFileValidator(file, csvSchema)
+          .then(csvData => {
+            let errors = ''
+            csvData.inValidData.forEach(item => {
+              errors += (item.message + '\n')
+            })
+            if(errors === '') {
+              resolve(true)
+            } else {
+              resolve(createError({ 
+                path,
+                message: errors
+              }))
+            }
           })
-          if(errors === '') {
-            resolve(true)
-          } else {
-            resolve(createError({ 
-              path,
-              message: errors
-            }))
-          }
-        })
+      } else {
+        resolve(true)
+      }
     }, )
   }
 
@@ -102,22 +106,28 @@ export default function Home() {
   });
 
   const onSubmit = async (data) => {
+    let response = ''
     try {
-      const response = await fetch(
+      const formData = new FormData()
+      formData.append('date', data.date)
+      formData.append('vendorName', data.vendorName)
+      formData.append('file', data.file[0])
+      response = await fetch(
         '/.netlify/functions/formHandler',
         {
           method: 'POST',
-          body: JSON.stringify({
-            query: data,
-          }),
+          body: formData
         }
-      );
+      )
+      if(!response.ok) throw Error
     } catch (err) {
       console.log(err);
     } finally {
-      setValue('date', '');
-      setValue('vendorName', '');
-      setValue('file', '');
+      if(response.ok) {
+        setValue('date', '')
+        setValue('vendorName', '')
+        setValue('file', '')
+      }
     }
   }
 
