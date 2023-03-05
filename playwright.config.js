@@ -85,8 +85,8 @@ module.exports = defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run dev -- -p 3001',
-    port: 3001,
+    command: 'netlify dev',
+    port: 8888,
   },
 });
 
